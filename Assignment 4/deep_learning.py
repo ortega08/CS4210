@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------
-# AUTHOR: your name
+# AUTHOR: Jessica Ortega
 # FILENAME: title of the source file
 # SPECIFICATION: description of the program
 # FOR: CS 4210- Assignment #4
@@ -23,19 +23,29 @@ def build_model(n_hidden, n_neurons_hidden, n_neurons_output, learning_rate):
     #model = keras.models.Sequential()
     #model.add(keras.layers.Flatten(input_shape=[28, 28]))                                #input layer
 
+    model = keras.models.Sequential()
+    model.add(keras.layers.Flatten(input_shape=[28, 28])) 
+
     #iterate over the number of hidden layers to create the hidden layers:
     #model.add(keras.layers.Dense(n_neurons_hidden, activation="relu"))                   #hidden layer with ReLU activation function
+    for i in range(n_hidden):
+        model.add(keras.layers.Dense(n_neurons_hidden, activation="relu")) 
 
     #output layer
     #model.add(keras.layers.Dense(n_neurons_output, activation="softmax"))                #output layer with one neural for each class and the softmax activation function since the classes are exclusive
+    
+    model.add(keras.layers.Dense(n_neurons_output, activation="softmax"))
 
     #defining the learning rate
     #opt = keras.optimizers.SGD(learning_rate)
+    
+    opt = keras.optimizers.SGD(learning_rate)
 
     #Compiling the Model specifying the loss function and the optimizer to use.
     #model.compile(loss="sparse_categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
     #return model
-
+    model.compile(loss="sparse_categorical_crossentropy", optimizer=opt, metrics=["accuracy"])
+    return model
 
 #To install Tensor Flow on your terminal
 #python -m pip install --upgrade tensorflow
@@ -58,33 +68,42 @@ class_names = ["T-shirt/top", "Trouser", "Pullover", "Dress", "Coat", "Sandal", 
 n_hidden = [2, 5, 10]
 n_neurons = [10, 50, 100]
 l_rate = [0.01, 0.05, 0.1]
+highestAccuracy = 0
 
-for :                          #looking or the best parameters w.r.t the number of hidden layers
-    for :                      #looking or the best parameters w.r.t the number of neurons
-        for :                  #looking or the best parameters w.r.t the learning rate
+for hValue in n_hidden :                          #looking or the best parameters w.r.t the number of hidden layers
+    for nValue in n_neurons :                      #looking or the best parameters w.r.t the number of neurons
+        for lValue in l_rate:                  #looking or the best parameters w.r.t the learning rate
 
             #build the model for each combination by calling the function:
             #model = build_model()
             #-->add your Pyhton code here
+            model = build_model(hValue, nValue, 10, lValue)
 
             #To train the model
             #history = model.fit(X_train, y_train, epochs=5, validation_data=(X_valid, y_valid))  #epochs = number times that the learning algorithm will work through the entire training dataset.
             #-->add your Pyhton code here
-
+            history = model.fit(X_train, y_train, epochs = 5, validation_data = (X_valid, y_valid))
+             
             #Calculate the accuracy of this neural network and store its value if it is the highest so far. To make a prediction, do:
-            class_predicted = np.argmax(model.predict(X_test), axis=-1)
             #-->add your Pyhton code here
+            accuracy = model.evaluate(X_test, y_test)
 
-            print("Highest accuracy so far: " + str(highestAccuracy))
-            print("Parameters: " + "Number of Hidden Layers: " + str(h) + ",number of neurons: " + str(n) + ",learning rate: " + str(l))
-            print()
+            if accuracy > highestAccuracy:
+                highestAccuracy = accuracy
+                bestModel = model
+                
+                
+                
+print("Highest accuracy so far: " + str(highestAccuracy))
+print("Parameters: " + "Number of Hidden Layers: " + str(hValue) + ",number of neurons: " + str(nValue) + ",learning rate: " + str(lValue))
+           
 
 #After generating all neural networks, print the summary of the best model found
 #The model’s summary() method displays all the model’s layers, including each layer’s name (which is automatically generated unless you set it when creating the layer), its
 #output shape (None means the batch size can be anything), and its number of parameters. Note that Dense layers often have a lot of parameters. This gives the model quite a lot of
 #flexibility to fit the training data, but it also means that the model runs the risk of overfitting, especially when you do not have a lot of training data.
 
-print(model.summary())
+print(bestModel.summary())
 img_file = './model_arch.png'
 tf.keras.utils.plot_model(model, to_file=img_file, show_shapes=True, show_layer_names=True)
 
